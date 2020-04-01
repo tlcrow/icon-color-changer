@@ -33,9 +33,12 @@ export default class IMG extends Component {
         console.log(color);
         console.log('colorssssssss')
         console.log(result);
+        let styling = {
+            filter: result.filter
+        }
         return (
             <div>
-                <img src={this.props.image} style={{filter:this.props.filter}}/>
+                <img src={this.props.image} style={{filter:result.filter}}/>
             </div>
         )
     }
@@ -314,7 +317,7 @@ class Solver {
     function fmt(idx, multiplier = 1) {
       return Math.round(filters[idx] * multiplier);
     }
-    return `filter: invert(${fmt(0)}%) sepia(${fmt(1)}%) saturate(${fmt(2)}%) hue-rotate(${fmt(3, 3.6)}deg) brightness(${fmt(4)}%) contrast(${fmt(5)}%);`;
+    return `invert(${fmt(0)}%) sepia(${fmt(1)}%) saturate(${fmt(2)}%) hue-rotate(${fmt(3, 3.6)}deg) brightness(${fmt(4)}%) contrast(${fmt(5)}%)`;
   }
 }
 

@@ -200,10 +200,13 @@ var IMG = /*#__PURE__*/function (_Component) {
       console.log(color);
       console.log('colorssssssss');
       console.log(result);
+      var styling = {
+        filter: result.filter
+      };
       return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("img", {
         src: this.props.image,
         style: {
-          filter: this.props.filter
+          filter: result.filter
         }
       }));
     }
@@ -502,7 +505,7 @@ var Solver = /*#__PURE__*/function () {
         return Math.round(filters[idx] * multiplier);
       }
 
-      return "filter: invert(".concat(fmt(0), "%) sepia(").concat(fmt(1), "%) saturate(").concat(fmt(2), "%) hue-rotate(").concat(fmt(3, 3.6), "deg) brightness(").concat(fmt(4), "%) contrast(").concat(fmt(5), "%);");
+      return "invert(".concat(fmt(0), "%) sepia(").concat(fmt(1), "%) saturate(").concat(fmt(2), "%) hue-rotate(").concat(fmt(3, 3.6), "deg) brightness(").concat(fmt(4), "%) contrast(").concat(fmt(5), "%)");
     }
   }]);
 
