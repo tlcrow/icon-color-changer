@@ -189,21 +189,26 @@ var IMG = /*#__PURE__*/function (_Component) {
     value: function render() {
       var desiredColor;
 
+      if (Array.isArray(this.props.color)) {
+        console.log('rgb');
+        desiredColor = this.props.color;
+      }
+
       if (this.props.color.includes('#')) {
+        console.log('hex');
         desiredColor = this.hexToRgb(this.props.color);
       }
 
-      var color = new Color(desiredColor[0], desiredColor[1], desiredColor[2]);
-      var solver = new Solver(color);
-      var result = solver.solve();
-      console.log(desiredColor);
-      console.log(color);
-      console.log('colorssssssss');
-      console.log(result);
+      var processingColor = new Color(desiredColor[0], desiredColor[1], desiredColor[2]);
+      var finishingColor = new Solver(processingColor);
+      console.log(finishingColor);
+      var resultingColor = finishingColor.solve();
+      console.log('loss');
+      console.log(resultingColor);
       return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("img", {
         src: this.props.image,
         style: {
-          filter: this.props.filter
+          filter: "saturate(100%) brightness(0%) ".concat(resultingColor.filter)
         }
       }));
     }
@@ -364,6 +369,8 @@ var Solver = /*#__PURE__*/function () {
     this.target = target;
     this.targetHSL = target.hsl();
     this.reusedColor = new Color(0, 0, 0);
+    console.log(target);
+    console.log(baseColor);
   }
 
   _createClass(Solver, [{
@@ -502,7 +509,7 @@ var Solver = /*#__PURE__*/function () {
         return Math.round(filters[idx] * multiplier);
       }
 
-      return "filter: invert(".concat(fmt(0), "%) sepia(").concat(fmt(1), "%) saturate(").concat(fmt(2), "%) hue-rotate(").concat(fmt(3, 3.6), "deg) brightness(").concat(fmt(4), "%) contrast(").concat(fmt(5), "%);");
+      return "invert(".concat(fmt(0), "%) sepia(").concat(fmt(1), "%) saturate(").concat(fmt(2), "%) hue-rotate(").concat(fmt(3, 3.6), "deg) brightness(").concat(fmt(4), "%) contrast(").concat(fmt(5), "%)");
     }
   }]);
 

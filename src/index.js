@@ -23,19 +23,24 @@ export default class IMG extends Component {
 
     render () {
         let desiredColor;
+        if(Array.isArray(this.props.color)){
+            console.log('rgb')
+            desiredColor = this.props.color;
+        }
         if(this.props.color.includes('#')){
+            console.log('hex')
             desiredColor = this.hexToRgb(this.props.color);
         }
-        const color = new Color(desiredColor[0], desiredColor[1], desiredColor[2]);
-        const solver = new Solver(color);
-        const result = solver.solve();
-        console.log(desiredColor);
-        console.log(color);
-        console.log('colorssssssss')
-        console.log(result);
+
+        const processingColor = new Color(desiredColor[0], desiredColor[1], desiredColor[2]);
+        const finishingColor = new Solver(processingColor);
+        console.log(finishingColor)
+        const resultingColor = finishingColor.solve();
+        console.log('loss')
+        console.log(resultingColor);
         return (
             <div>
-                <img src={this.props.image} style={{filter:this.props.filter}}/>
+                <img src={this.props.image} style={{filter:`saturate(100%) brightness(0%) ${resultingColor.filter}`}}/>
             </div>
         )
     }
@@ -173,7 +178,6 @@ class Color {
       }
       h /= 6;
     }
-
     return {
       h: h * 100,
       s: s * 100,
@@ -196,6 +200,8 @@ class Solver {
     this.target = target;
     this.targetHSL = target.hsl();
     this.reusedColor = new Color(0, 0, 0);
+    console.log(target)
+    console.log(baseColor)
   }
 
   solve() {
@@ -314,7 +320,7 @@ class Solver {
     function fmt(idx, multiplier = 1) {
       return Math.round(filters[idx] * multiplier);
     }
-    return `filter: invert(${fmt(0)}%) sepia(${fmt(1)}%) saturate(${fmt(2)}%) hue-rotate(${fmt(3, 3.6)}deg) brightness(${fmt(4)}%) contrast(${fmt(5)}%);`;
+    return `invert(${fmt(0)}%) sepia(${fmt(1)}%) saturate(${fmt(2)}%) hue-rotate(${fmt(3, 3.6)}deg) brightness(${fmt(4)}%) contrast(${fmt(5)}%)`;
   }
 }
 
