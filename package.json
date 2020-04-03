@@ -1,7 +1,7 @@
 {
-  "name": "svg-color-changer",
-  "version": "0.1.0",
-  "description": "Changes the color of svgs in img tags",
+  "name": "icon-color-changer",
+  "version": "0.0.9",
+  "description": "Changes the color of svg, png, and jpeg icons in img tags",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -2,10 +2,6 @@ export class HSLValues {
   constructor(r, g, b) {
     this.set(r, g, b);
   }
-  
-  toString() {
-    return `rgb(${Math.round(this.r)}, ${Math.round(this.g)}, ${Math.round(this.b)})`;
-  }
 
   set(r, g, b) {
     this.r = this.clamp(r);
@@ -102,7 +98,6 @@ export class HSLValues {
   }
 
   hsl() {
-    // Code taken from https://stackoverflow.com/a/9493060/2688027, licensed under CC BY-SA.
     const r = this.r / 255;
     const g = this.g / 255;
     const b = this.b / 255;
@@ -160,7 +155,6 @@ export class FilterValues {
     const result = this.solveNarrow(this.solveWide());
     return {
       values: result.values,
-      loss: result.loss,
       filter: this.css(result.values),
     };
   }
