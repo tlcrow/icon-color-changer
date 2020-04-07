@@ -1,5 +1,4 @@
 
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -370,7 +369,13 @@ var IMG = /*#__PURE__*/function (_Component) {
   _createClass(IMG, [{
     key: "render",
     value: function render() {
-      var styling = this.props.style;
+      var styling;
+
+      if (_typeof(this.props.style) === 'object' && this.props.style !== null) {
+        styling = this.props.style;
+      } else {
+        styling = {};
+      }
 
       if (typeof styling.color == 'string') {
         if (styling.color.includes('#')) {
@@ -391,6 +396,7 @@ var IMG = /*#__PURE__*/function (_Component) {
       }
 
       return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("img", {
+        align: "middle",
         src: this.props.image,
         style: styling
       }));

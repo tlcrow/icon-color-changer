@@ -9,7 +9,13 @@ export default class IMG extends Component {
     }
     
     render () {
-        let styling = this.props.style;
+        let styling;
+        if(typeof this.props.style === 'object' && this.props.style !== null){
+            styling = this.props.style
+        }
+        else{
+            styling = {}
+        }
 
         if(typeof styling.color == 'string'){
             if(styling.color.includes('#')){
@@ -29,6 +35,7 @@ export default class IMG extends Component {
                 filter: ''
             }
         }
+
         return (
             <div>
                 <img src={this.props.image} style={styling}/>
