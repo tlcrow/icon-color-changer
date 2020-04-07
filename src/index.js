@@ -1,43 +1,44 @@
 import React, { Component } from 'react';
 import { hexToRgb } from './src/colorConverter/hexToRgb';
 import { namedColors } from './src/variables';
-import { HSLValues, FilterValues } from './src/colorConverter/hslValues';
-// import { FilterValues } from './src/colorConverter/filterValues';
-
+import { HSLValues, FilterValues } from './src/colorConverter/filterColor';
 
 export default class IMG extends Component {
     constructor(props) {
         super(props);
     }
     
-
     render () {
-        let desiredColor;
-        let resultingColor;
-        if(Array.isArray(this.props.color)){
-            desiredColor = this.props.color;
-        }
-        else if(typeof this.props.color == 'string'){
-            if(this.props.color.includes('#')){
-                desiredColor = hexToRgb(this.props.color);
-            }
-            else if(!this.props.color.includes('#') && namedColors[this.props.color]){
-                desiredColor = hexToRgb(namedColors[this.props.color]);
-            }
-        }
-        if(Array.isArray(desiredColor) && desiredColor.length == 3){
-                const processingColor = new HSLValues(desiredColor[0], desiredColor[1], desiredColor[2]);
-                const finishingColor = new FilterValues(processingColor);
-                resultingColor = finishingColor.solve();
+        let styling;
+        if(typeof this.props.style === 'object' && this.props.style !== null){
+            styling = this.props.style
         }
         else{
-            resultingColor = {
+            styling = {}
+        }
+
+        if(typeof styling.color == 'string'){
+            if(styling.color.includes('#')){
+                styling.color = hexToRgb(styling.color);
+            }
+            else if(!styling.color.includes('#') && namedColors[styling.color.toLowerCase()]){
+                styling.color = hexToRgb(namedColors[styling.color.toLowerCase()]);
+            }
+        }
+        if(Array.isArray(styling.color) && styling.color.length == 3){
+                let processingColor = new HSLValues(styling.color[0], styling.color[1], styling.color[2]);
+                let finishingColor = new FilterValues(processingColor);
+                styling.filter = finishingColor.solve().filter;
+        }
+        else{
+            styling.filter = {
                 filter: ''
             }
         }
+
         return (
             <div>
-                <img src={this.props.image} style={{filter:` ${resultingColor.filter}`}}/>
+                <img src={this.props.image} style={styling}/>
             </div>
         )
     }
