@@ -396,7 +396,6 @@ var IMG = /*#__PURE__*/function (_Component) {
       }
 
       return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("img", {
-        align: "middle",
         src: this.props.image,
         style: styling
       }));
