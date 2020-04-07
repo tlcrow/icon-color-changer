@@ -1,6 +1,6 @@
 {
   "name": "icon-color-changer",
-  "version": "0.0.9",
+  "version": "0.5.0",
   "description": "Changes the color of svg, png, and jpeg icons in img tags",
   "main": "index.js",
   "scripts": {
