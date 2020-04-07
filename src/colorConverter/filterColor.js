@@ -147,8 +147,6 @@ export class FilterValues {
     this.target = target;
     this.targetHSL = target.hsl();
     this.reusedColor = new HSLValues(0, 0, 0);
-    console.log(target)
-    console.log(baseColor)
   }
 
   solve() {

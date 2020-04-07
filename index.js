@@ -1,189 +1,4 @@
-"use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FilterValues = void 0;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-var HSLValues = require('./src/colorConverter/hslValues');
-
-var FilterValues = /*#__PURE__*/function () {
-  function FilterValues(target, baseColor) {
-    _classCallCheck(this, FilterValues);
-
-    this.target = target;
-    this.targetHSL = target.hsl();
-    this.reusedColor = new HSLValues(0, 0, 0);
-    console.log(target);
-    console.log(baseColor);
-  }
-
-  _createClass(FilterValues, [{
-    key: "solve",
-    value: function solve() {
-      var result = this.solveNarrow(this.solveWide());
-      return {
-        values: result.values,
-        loss: result.loss,
-        filter: this.css(result.values)
-      };
-    }
-  }, {
-    key: "solveWide",
-    value: function solveWide() {
-      var A = 5;
-      var c = 15;
-      var a = [60, 180, 18000, 600, 1.2, 1.2];
-      var best = {
-        loss: Infinity
-      };
-
-      for (var i = 0; best.loss > 25 && i < 3; i++) {
-        var initial = [50, 20, 3750, 50, 100, 100];
-        var result = this.spsa(A, a, c, initial, 1000);
-
-        if (result.loss < best.loss) {
-          best = result;
-        }
-      }
-
-      return best;
-    }
-  }, {
-    key: "solveNarrow",
-    value: function solveNarrow(wide) {
-      var A = wide.loss;
-      var c = 2;
-      var A1 = A + 1;
-      var a = [0.25 * A1, 0.25 * A1, A1, 0.25 * A1, 0.2 * A1, 0.2 * A1];
-      return this.spsa(A, a, c, wide.values, 500);
-    }
-  }, {
-    key: "spsa",
-    value: function spsa(A, a, c, values, iters) {
-      var alpha = 1;
-      var gamma = 0.16666666666666666;
-      var best = null;
-      var bestLoss = Infinity;
-      var deltas = new Array(6);
-      var highArgs = new Array(6);
-      var lowArgs = new Array(6);
-
-      for (var k = 0; k < iters; k++) {
-        var ck = c / Math.pow(k + 1, gamma);
-
-        for (var i = 0; i < 6; i++) {
-          deltas[i] = Math.random() > 0.5 ? 1 : -1;
-          highArgs[i] = values[i] + ck * deltas[i];
-          lowArgs[i] = values[i] - ck * deltas[i];
-        }
-
-        var lossDiff = this.loss(highArgs) - this.loss(lowArgs);
-
-        for (var _i = 0; _i < 6; _i++) {
-          var g = lossDiff / (2 * ck) * deltas[_i];
-          var ak = a[_i] / Math.pow(A + k + 1, alpha);
-          values[_i] = fix(values[_i] - ak * g, _i);
-        }
-
-        var loss = this.loss(values);
-
-        if (loss < bestLoss) {
-          best = values.slice(0);
-          bestLoss = loss;
-        }
-      }
-
-      return {
-        values: best,
-        loss: bestLoss
-      };
-
-      function fix(value, idx) {
-        var max = 100;
-
-        if (idx === 2
-        /* saturate */
-        ) {
-            max = 7500;
-          } else if (idx === 4
-        /* brightness */
-        || idx === 5
-        /* contrast */
-        ) {
-            max = 200;
-          }
-
-        if (idx === 3
-        /* hue-rotate */
-        ) {
-            if (value > max) {
-              value %= max;
-            } else if (value < 0) {
-              value = max + value % max;
-            }
-          } else if (value < 0) {
-          value = 0;
-        } else if (value > max) {
-          value = max;
-        }
-
-        return value;
-      }
-    }
-  }, {
-    key: "loss",
-    value: function loss(filters) {
-      // Argument is array of percentages.
-      var color = this.reusedColor;
-      color.set(0, 0, 0);
-      color.invert(filters[0] / 100);
-      color.sepia(filters[1] / 100);
-      color.saturate(filters[2] / 100);
-      color.hueRotate(filters[3] * 3.6);
-      color.brightness(filters[4] / 100);
-      color.contrast(filters[5] / 100);
-      var colorHSL = color.hsl();
-      return Math.abs(color.r - this.target.r) + Math.abs(color.g - this.target.g) + Math.abs(color.b - this.target.b) + Math.abs(colorHSL.h - this.targetHSL.h) + Math.abs(colorHSL.s - this.targetHSL.s) + Math.abs(colorHSL.l - this.targetHSL.l);
-    }
-  }, {
-    key: "css",
-    value: function css(filters) {
-      function fmt(idx) {
-        var multiplier = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-        return Math.round(filters[idx] * multiplier);
-      }
-
-      return "saturate(100%) brightness(0%) invert(".concat(fmt(0), "%) sepia(").concat(fmt(1), "%) saturate(").concat(fmt(2), "%) hue-rotate(").concat(fmt(3, 3.6), "deg) brightness(").concat(fmt(4), "%) contrast(").concat(fmt(5), "%)");
-    }
-  }]);
-
-  return FilterValues;
-}();
-
-exports.FilterValues = FilterValues;
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.hexToRgb = hexToRgb;
-
-function hexToRgb(hex) {
-  var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  hex = hex.replace(shorthandRegex, function (m, r, g, b) {
-    return r + r + g + g + b + b;
-  });
-  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null;
-}
-"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -342,8 +157,6 @@ var FilterValues = /*#__PURE__*/function () {
     this.target = target;
     this.targetHSL = target.hsl();
     this.reusedColor = new HSLValues(0, 0, 0);
-    console.log(target);
-    console.log(baseColor);
   }
 
   _createClass(FilterValues, [{
@@ -489,7 +302,20 @@ var FilterValues = /*#__PURE__*/function () {
 }();
 
 exports.FilterValues = FilterValues;
-"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.hexToRgb = hexToRgb;
+
+function hexToRgb(hex) {
+  var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+  hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+    return r + r + g + g + b + b;
+  });
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null;
+}
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -502,7 +328,7 @@ var _hexToRgb = require("./src/colorConverter/hexToRgb");
 
 var _variables = require("./src/variables");
 
-var _hslValues = require("./src/colorConverter/hslValues");
+var _filterColor = require("./src/colorConverter/filterColor");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
@@ -530,7 +356,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-// import { FilterValues } from './src/colorConverter/filterValues';
 var IMG = /*#__PURE__*/function (_Component) {
   _inherits(IMG, _Component);
 
@@ -545,34 +370,29 @@ var IMG = /*#__PURE__*/function (_Component) {
   _createClass(IMG, [{
     key: "render",
     value: function render() {
-      var desiredColor;
-      var resultingColor;
+      var styling = this.props.style;
 
-      if (Array.isArray(this.props.color)) {
-        desiredColor = this.props.color;
-      } else if (typeof this.props.color == 'string') {
-        if (this.props.color.includes('#')) {
-          desiredColor = (0, _hexToRgb.hexToRgb)(this.props.color);
-        } else if (!this.props.color.includes('#') && _variables.namedColors[this.props.color]) {
-          desiredColor = (0, _hexToRgb.hexToRgb)(_variables.namedColors[this.props.color]);
+      if (typeof styling.color == 'string') {
+        if (styling.color.includes('#')) {
+          styling.color = (0, _hexToRgb.hexToRgb)(styling.color);
+        } else if (!styling.color.includes('#') && _variables.namedColors[styling.color.toLowerCase()]) {
+          styling.color = (0, _hexToRgb.hexToRgb)(_variables.namedColors[styling.color.toLowerCase()]);
         }
       }
 
-      if (Array.isArray(desiredColor) && desiredColor.length == 3) {
-        var processingColor = new _hslValues.HSLValues(desiredColor[0], desiredColor[1], desiredColor[2]);
-        var finishingColor = new _hslValues.FilterValues(processingColor);
-        resultingColor = finishingColor.solve();
+      if (Array.isArray(styling.color) && styling.color.length == 3) {
+        var processingColor = new _filterColor.HSLValues(styling.color[0], styling.color[1], styling.color[2]);
+        var finishingColor = new _filterColor.FilterValues(processingColor);
+        styling.filter = finishingColor.solve().filter;
       } else {
-        resultingColor = {
+        styling.filter = {
           filter: ''
         };
       }
 
       return /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement("img", {
         src: this.props.image,
-        style: {
-          filter: " ".concat(resultingColor.filter)
-        }
+        style: styling
       }));
     }
   }]);
@@ -581,7 +401,6 @@ var IMG = /*#__PURE__*/function (_Component) {
 }(_react.Component);
 
 exports["default"] = IMG;
-"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
